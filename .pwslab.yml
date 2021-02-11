@@ -1,0 +1,27 @@
+image: docker:18.09
+services:
+  - docker:18.09-dind
+before_script:
+  - docker login hub-peerxp.pwslab.net --username arunkamu01@yahoo.com --password Pks*6163
+variables:
+  DOCKER_DRIVER: overlay
+#  DOCKER_HOST: tcp://localhost:2375
+build:
+  stage: maven-build
+  script:
+    - "mvn package -B"
+  artifacts:
+  paths:
+    - target/*.jar
+  only:
+    - master
+  stage: docker-build
+  script:
+    - docker info
+    - docker build -t hub-peerxp.pwslab.net/devops-assignment/java-9201 
+    - docker push hub-peerxp.pwslab.net/devops-assignment/java-9201
+deploy:
+  stage: docker-deploy
+  script:
+    - docker stack deploy --compose -file .pwslab.yml possidility
+   
